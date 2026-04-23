@@ -1,0 +1,133 @@
+{
+  "name": "dragble-angular-editor",
+  "version": "1.0.0",
+  "description": "Angular email editor component AI powered drag-and-drop email builder for creating responsive email templates and newsletters. Build HTML emails visually with Dragble.",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "ngc && rollup -c",
+    "build:watch": "rollup -c -w",
+    "dev": "rollup -c -w",
+    "test": "jest",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run build",
+    "prepare": "husky"
+  },
+  "keywords": [
+    "dragble",
+    "email",
+    "email-editor",
+    "email-builder",
+    "email-template",
+    "email-template-builder",
+    "email-template-editor",
+    "email-designer",
+    "email-design",
+    "html-email",
+    "html-email-editor",
+    "html-email-builder",
+    "responsive-email",
+    "newsletter",
+    "newsletter-builder",
+    "newsletter-editor",
+    "newsletter-template",
+    "angular",
+    "angular-email",
+    "angular-email-editor",
+    "angular-email-builder",
+    "angular-component",
+    "editor",
+    "template-editor",
+    "template-builder",
+    "drag-and-drop",
+    "drag-drop-editor",
+    "visual-editor",
+    "wysiwyg",
+    "wysiwyg-editor",
+    "page-builder",
+    "web-page-builder",
+    "landing-page-builder",
+    "no-code",
+    "low-code",
+    "design-tool",
+    "email-marketing",
+    "email-campaign",
+    "transactional-email",
+    "mailchimp",
+    "sendgrid",
+    "mjml",
+    "embed",
+    "embeddable",
+    "sdk",
+    "content-builder",
+    "email-automation"
+  ],
+  "author": "Dragble",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dragble/dragble-angular-editor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Dragble/dragble-angular-editor/issues"
+  },
+  "homepage": "https://docs.dragble.com",
+  "dependencies": {
+    "dragble-types": "latest"
+  },
+  "peerDependencies": {
+    "@angular/common": ">=14.0.0",
+    "@angular/core": ">=14.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/common": {
+      "optional": false
+    },
+    "@angular/core": {
+      "optional": false
+    }
+  },
+  "devDependencies": {
+    "@angular/common": "^21.2.10",
+    "@angular/compiler": "^21.2.10",
+    "@angular/compiler-cli": "^21.2.10",
+    "@angular/core": "^21.2.10",
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@types/node": "^20.10.4",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "eslint": "^8.55.0",
+    "husky": "^9.1.7",
+    "rollup": "^4.9.0",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rxjs": "^7.8.1",
+    "typescript": "^5.3.3",
+    "zone.js": "^0.14.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
