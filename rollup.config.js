@@ -5,7 +5,7 @@ import copy from "rollup-plugin-copy";
 
 const plugins = [peerDepsExternal(), resolve(), commonjs()];
 
-const external = ["@angular/core", "@angular/common", "dragble-editor-types"];
+const external = ["@angular/core", "@angular/common", "dragble-types"];
 
 // ESM bundle (uses ngc output)
 const esmBundle = {

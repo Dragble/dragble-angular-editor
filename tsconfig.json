@@ -33,6 +33,9 @@
       "dragble-editor-types": ["../dragble-editor-types/dist"]
     }
   },
+  "angularCompilerOptions": {
+    "compilationMode": "partial"
+  },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
