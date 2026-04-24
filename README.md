@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://dragble.com">
-    <img src="logo.png" alt="Dragble Email Editor - Angular Email Template Builder" width="300" />
+    <img src="logo.png" alt="Dragble - AI-Powered Angular Email Template Builder" width="300" />
   </a>
 </p>
 
@@ -11,14 +11,14 @@
 
 # dragble-angular-editor
 
-Angular component for building **email templates** with drag-and-drop. Embed a full-featured **email editor** into your Angular app — create responsive HTML emails, newsletters, transactional email templates, and email marketing campaigns visually without writing code.
+AI-powered Angular component for building **email templates** with drag-and-drop. Embed a full-featured **AI-powered email editor** into your Angular app — create responsive HTML emails, newsletters, transactional email templates, and email marketing campaigns visually without writing code.
 
-[Dragble](https://dragble.com) is a modern **email builder** and **email template editor** that lets your users design professional emails with a visual drag-and-drop interface.
+[Dragble](https://dragble.com) is a modern **AI-powered email builder** and **email template editor** that lets your users design professional emails with a visual drag-and-drop interface.
 
 [Website](https://dragble.com) | [Documentation](https://docs.dragble.com) | [Dashboard](https://developers.dragble.com)
 
 <p align="center">
-  <img src="editor_image.png" alt="Dragble Angular Email Editor - Drag and Drop Email Template Builder" width="700" />
+  <img src="editor_image.png" alt="Dragble - AI-Powered Angular Email Editor with Drag and Drop" width="700" />
 </p>
 
 ## Features
