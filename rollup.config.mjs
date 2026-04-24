@@ -7,11 +7,24 @@ const plugins = [peerDepsExternal(), resolve(), commonjs()];
 
 const external = ["@angular/core", "@angular/common", "dragble-types"];
 
+// CJS bundle (uses ngc output)
+const cjsBundle = {
+  input: "dist/out-tsc/index.js",
+  output: {
+    file: "dist/index.js",
+    format: "cjs",
+    sourcemap: true,
+    exports: "named",
+  },
+  plugins,
+  external,
+};
+
 // ESM bundle (uses ngc output)
 const esmBundle = {
   input: "dist/out-tsc/index.js",
   output: {
-    file: "dist/index.js",
+    file: "dist/index.mjs",
     format: "esm",
     sourcemap: true,
     exports: "named",
@@ -32,4 +45,4 @@ const esmBundle = {
   external,
 };
 
-export default [esmBundle];
+export default [cjsBundle, esmBundle];
