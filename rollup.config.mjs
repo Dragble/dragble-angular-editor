@@ -11,7 +11,7 @@ const external = ["@angular/core", "@angular/common", "dragble-types"];
 const cjsBundle = {
   input: "dist/out-tsc/index.js",
   output: {
-    file: "dist/index.js",
+    file: "dist/index.cjs",
     format: "cjs",
     sourcemap: true,
     exports: "named",
