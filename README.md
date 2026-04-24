@@ -123,7 +123,7 @@ export class EmailEditorComponent {
 }
 ```
 
-### Standalone Component (Angular 15+)
+### Standalone Component (Angular 17+)
 
 ```typescript
 import { Component, ViewChild } from "@angular/core";
@@ -167,7 +167,7 @@ export class EditorComponent {
 | `language`          | `Language`                               | `undefined`  | Template language                     |
 | `appearance`        | `AppearanceConfig`                       | `undefined`  | Visual customization                  |
 | `tools`             | `ToolsConfig`                            | `undefined`  | Tool enable/disable                   |
-| `customTools`       | `DragbleToolConfig[]`                   | `undefined`  | Custom tool definitions               |
+| `customTools`       | `DragbleToolConfig[]`                    | `undefined`  | Custom tool definitions               |
 | `features`          | `FeaturesConfig`                         | `undefined`  | Feature toggles                       |
 | `fonts`             | `FontsConfig`                            | `undefined`  | Fonts configuration                   |
 | `bodyValues`        | `Record<string, unknown>`                | `undefined`  | Body-level values                     |
@@ -183,17 +183,17 @@ export class EditorComponent {
 | `height`            | `string \| number`                       | `"600px"`    | Editor height                         |
 | `minHeight`         | `string \| number`                       | `"600px"`    | Minimum height                        |
 | `options`           | `Partial<EditorOptions>`                 | `undefined`  | Additional editor options             |
-| `callbacks`         | `Omit<DragbleCallbacks, ...>`           | `undefined`  | SDK callbacks                         |
+| `callbacks`         | `Omit<DragbleCallbacks, ...>`            | `undefined`  | SDK callbacks                         |
 
-| `collaboration`     | `boolean \| CollaborationFeaturesConfig` | `undefined`  | Collaboration settings                |
-| `user`              | `UserInfo`                               | `undefined`  | Current user info                     |
-| `designMode`        | `"edit" \| "live"`                       | `undefined`  | Template permissions mode             |
+| `collaboration` | `boolean \| CollaborationFeaturesConfig` | `undefined` | Collaboration settings |
+| `user` | `UserInfo` | `undefined` | Current user info |
+| `designMode` | `"edit" \| "live"` | `undefined` | Template permissions mode |
 
 ## Outputs
 
 | Output          | Payload Type                           | Description                      |
 | --------------- | -------------------------------------- | -------------------------------- |
-| `ready`         | `DragbleSDK`                          | Emitted when the editor is ready |
+| `ready`         | `DragbleSDK`                           | Emitted when the editor is ready |
 | `load`          | `unknown`                              | Emitted when a design is loaded  |
 | `change`        | `{ design: DesignJson; type: string }` | Emitted on every design change   |
 | `error`         | `Error`                                | Emitted when an error occurs     |
