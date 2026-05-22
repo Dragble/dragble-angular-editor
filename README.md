@@ -11,9 +11,9 @@
 
 # dragble-angular-editor
 
-AI-powered Angular component for building **email templates** with drag-and-drop. Embed a full-featured **AI-powered email editor** into your Angular app — create responsive HTML emails, newsletters, transactional email templates, and email marketing campaigns visually without writing code.
+The **fully AI-powered** Angular editor for **email templates** and **landing pages**. Your end-users design visually with drag-and-drop — or describe what they want and watch AI agents build it live on the canvas. Powered by the built-in **Model Context Protocol (MCP)** server, connect [Claude Code](https://claude.com/code), [OpenCode](https://opencode.ai), [Codex](https://github.com/openai/codex), [Cursor](https://cursor.com), or your own AI backend directly to the editor. Structured tool calls mean guaranteed-valid output — no prompt engineering, no JSON hallucination, no broken layouts.
 
-[Dragble](https://dragble.com) is a modern **AI-powered email builder** and **email template editor** that lets your users design professional emails with a visual drag-and-drop interface.
+[Dragble](https://dragble.com) brings two design experiences together in one Angular component: a polished visual editor for designers and a conversational AI surface for everyone else — backed by structured tool calls that produce guaranteed-valid HTML emails and landing pages every time.
 
 [Website](https://dragble.com) | [Documentation](https://docs.dragble.com) | [Dashboard](https://developers.dragble.com)
 
@@ -24,6 +24,7 @@ AI-powered Angular component for building **email templates** with drag-and-drop
 ## Features
 
 - Drag-and-drop **email template builder** with 20+ content blocks
+- **Fully AI-powered via MCP** — connect AI agents (Claude Code, OpenCode, Codex, Cursor) or your own AI backend to build designs live on the canvas. Structured tool calls mean guaranteed-valid output — no prompt engineering, no JSON hallucination
 - Responsive **HTML email** output compatible with all major email clients
 - **Newsletter editor** with merge tags, dynamic content, and display conditions
 - Visual **email designer** — no HTML/CSS knowledge required for end users
@@ -151,6 +152,302 @@ export class EditorComponent {
 }
 ```
 
+## Complete Example
+
+```typescript
+import { Component, ViewChild } from "@angular/core";
+import {
+  DragbleEditorComponent,
+  DesignJson,
+  DragbleSDK,
+  EditorOptions,
+} from "dragble-angular-editor";
+
+@Component({
+  selector: "app-advanced-email-builder",
+  standalone: true,
+  imports: [DragbleEditorComponent],
+  styles: [`
+    .advanced-email-builder {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toolbar {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .dirty-indicator {
+      color: orange;
+    }
+  `],
+  template: `
+    <div class="advanced-email-builder">
+      <div class="toolbar">
+        <button type="button" (click)="editor.undo()">Undo</button>
+        <button type="button" (click)="editor.redo()">Redo</button>
+        <button type="button" (click)="editor.showPreview('desktop')">
+          Preview
+        </button>
+        <button type="button" (click)="handleExportHtml()">Export HTML</button>
+        <button type="button" (click)="handleExportImage()">Export Image</button>
+        <span *ngIf="isDirty" class="dirty-indicator">Unsaved changes</span>
+      </div>
+
+      <dragble-editor
+        #editor
+        [editorKey]="'your-editor-key'"
+        [editorMode]="'email'"
+        [height]="'100%'"
+        [designMode]="'live'"
+        [options]="editorOptions"
+        (ready)="handleReady($event)"
+        (change)="handleChange($event)"
+        (error)="handleError($event)"
+      ></dragble-editor>
+    </div>
+  `,
+})
+export class AdvancedEmailBuilderComponent {
+  @ViewChild("editor") editor!: DragbleEditorComponent;
+
+  isDirty = false;
+
+  editorOptions: EditorOptions = {
+    appearance: { theme: "light" },
+    features: {
+      preview: true,
+      undoRedo: true,
+      imageEditor: true,
+    },
+  };
+
+  handleReady(editor: DragbleSDK): void {
+    // Set merge tags (must pass a MergeTagsConfig object)
+    editor.setMergeTags({
+      customMergeTags: [
+        { name: "First Name", value: "{{first_name}}" },
+        { name: "Last Name", value: "{{last_name}}" },
+        { name: "Company", value: "{{company}}" },
+      ],
+      excludeDefaults: false,
+      sort: true,
+    });
+
+    // Set custom fonts
+    editor.setFonts({
+      showDefaultFonts: true,
+      customFonts: [{ label: "Brand Font", value: "BrandFont, sans-serif" }],
+    });
+
+    // Load saved design if available
+    const savedDesign = localStorage.getItem("email-design");
+    if (savedDesign) {
+      editor.loadDesign(JSON.parse(savedDesign));
+    }
+  }
+
+  handleChange(data: { design: DesignJson; type: string }): void {
+    this.isDirty = true;
+    localStorage.setItem("email-design", JSON.stringify(data.design));
+  }
+
+  async handleExportHtml(): Promise<void> {
+    const html = await this.editor.exportHtml();
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "email.html";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async handleExportImage(): Promise<void> {
+    const data = await this.editor.exportImage();
+    window.open(data.url, "_blank");
+  }
+
+  handleError(error: Error): void {
+    console.error(error.message);
+  }
+}
+```
+
+## MCP — AI Integration
+
+Connect AI agents (Claude Code, OpenCode, Codex, Cursor, or your own AI backend) to the editor through the [Model Context Protocol](https://modelcontextprotocol.io). The AI calls structured tools — `add_row`, `add_heading`, `update_button`, `export_html` — that mutate design state live on the canvas. No prompt engineering, no JSON hallucination, no broken output.
+
+### Enabling MCP
+
+MCP is off by default. Set `features: { mcp: true }` to opt in:
+
+```html
+<dragble-editor
+  #editor
+  [editorKey]="'db_pxl81cxn92wignwx'"
+  [options]="{ features: { mcp: true } }"
+></dragble-editor>
+```
+
+MCP also requires a **Starter plan or higher**. Both conditions must be true — plan allows it AND SDK enables it.
+
+### Quick example — your backend controls the AI
+
+```typescript
+import { Component, ViewChild } from "@angular/core";
+import { DragbleEditorComponent } from "dragble-angular-editor";
+
+@Component({
+  selector: "app-editor",
+  template: `
+    <button (click)="handleConnectAI()">Connect AI</button>
+    <dragble-editor
+      #editor
+      [editorKey]="'db_pxl81cxn92wignwx'"
+      [options]="{ features: { mcp: true } }"
+    ></dragble-editor>
+  `,
+})
+export class EditorComponent {
+  @ViewChild("editor") editor!: DragbleEditorComponent;
+
+  async handleConnectAI() {
+    // The id is YOUR identifier — derive it from your own database/session
+    // so the same user editing the same document always gets the same MCP
+    // session. Example: if your logged-in user is "alice123" and they're
+    // editing document "campaign-summer-2026", build an id like this:
+    //
+    //   const id = "alice123-campaign-summer-2026";
+    //
+    // Format rules: 8-128 chars, only letters/digits/hyphens/underscores.
+    const userIdFromAuth = "alice123";        // from your auth/session
+    const docIdFromRoute = "campaign-summer"; // from your URL or DB row
+    const id = `${userIdFromAuth}-${docIdFromRoute}`;
+    const { sessionId } =
+      await this.editor.editor!.connectMCP({ id });
+    // Pass sessionId to your backend — it calls MCP tools with your mcp_key
+  }
+}
+```
+
+### Quick example — end-user pairs their own AI client
+
+```typescript
+const handleLetUserPair = async () => {
+  const editor = this.editor.editor!;
+  // Same id you'd use anywhere else for this user+document combination.
+  // 8-128 chars, only letters/digits/hyphens/underscores.
+  const id = "alice123-campaign-summer-2026";
+  await editor.connectMCP({ id });
+
+  // Explicitly generate a pairing code (not auto-generated)
+  const { code, expiresAt } = await editor.getPairingCode();
+  alert(`Paste this into Claude Code: ${code}`);
+};
+```
+
+### One controller per session
+
+Each session can be controlled by **either** your backend **or** an end-user's AI client (Claude Code, OpenCode), never both at the same time:
+
+- If your backend makes the first tool call → session is locked to **backend**. Pairing codes are rejected.
+- If a user pairs via pairing code first → session is locked to **paired client**. Backend tool calls are rejected.
+
+This prevents two AI controllers from conflicting on the same design.
+
+### How it works
+
+1. **Enable MCP** in the SDK config: `features: { mcp: true }`.
+2. **Generate an MCP key** in the Dragble dashboard: Project → MCP Key → Generate. Store it in your backend env vars — never in browser code.
+3. **Call `editor.connectMCP({ id })`** where `id` is a stable identifier you control (see below).
+4. **Choose your AI path**: either your backend calls MCP tools directly (using the mcp_key), or you generate a pairing code for the end-user to connect their own AI client.
+5. **Mutations stream live** onto the editor canvas as the AI works.
+
+### The `id` parameter — why it matters
+
+The `id` you pass to `connectMCP()` is a **Bring Your Own ID (BYOI)** that maps to your domain entities. It is NOT a random token — it is how Dragble identifies the session across browser refreshes, server restarts, and device switches.
+
+**Rules:**
+- 8–128 characters long
+- Only letters, numbers, hyphens, and underscores (`a-z A-Z 0-9 - _`)
+- Must be deterministic — the same user editing the same document should always produce the same `id`
+
+**Why these rules?**
+- The `id` is used in database lookups, URL paths, and storage keys — special characters or extreme lengths would break routing
+- Same `id` = resume the same session. Random UUIDs mean every page refresh creates a new session and loses AI context
+- Short IDs (< 8 chars) are too easy to guess, long IDs (> 128 chars) waste storage
+
+```typescript
+// Recommended: derive from your domain — concrete examples
+editor.connectMCP({ id: "alice123-campaign-summer-2026" });   // user + doc
+editor.connectMCP({ id: "workspace_acme_template_welcome" }); // workspace + template
+editor.connectMCP({ id: "org-uber-eats-promo-q4-2026" });     // org + campaign
+editor.connectMCP({ id: "tenant_42_invoice_template_v3" });   // tenant + entity
+
+// Valid but NOT recommended — random IDs break session continuity
+// (every page refresh creates a brand new session, AI loses context)
+editor.connectMCP({ id: crypto.randomUUID() });
+```
+
+### Storage modes (compliance)
+
+Choose how much of the session lives on Dragble's servers:
+
+| Mode | Persistence | Use case |
+|---|---|---|
+| `full` (default) | Metadata + design content | Standard SaaS; survives refresh, restart, device switch |
+| `metadata-only` | Metadata only | Audit logs without storing customer content |
+| `memory-only` | None — RAM only | HIPAA / SOC2 / strict data residency |
+
+```typescript
+editor.connectMCP({
+  id: "user-42-doc-99",
+  storage: "full",          // default — best UX, refresh + cross-device resume
+  // "metadata-only"        // audit metadata only, no design content persisted
+  // "memory-only"          // nothing persisted (HIPAA / SOC2 / data residency)
+});
+```
+
+### Disconnecting
+
+`disconnectMCP()` permanently destroys the session — the database record is deleted and the session cannot be reopened:
+
+```typescript
+const { destroyed } = await editor.disconnectMCP();
+```
+
+Your backend can also force-destroy a session server-side (e.g., when a user's subscription ends):
+
+```bash
+curl -X DELETE https://mcp.dragble.io/sessions/user-42-doc-99 \
+  -H "X-API-Key: db_mcp_your_key_here"
+```
+
+Idle sessions are reaped after 2 hours of inactivity. Active sessions never expire — each tool call resets the timer.
+
+### MCP method reference
+
+| Method | Returns |
+|---|---|
+| `editor.connectMCP({ id, storage?, editorMode? })` | `{ sessionId, storageMode?, resumed? }` |
+| `editor.disconnectMCP()` | `{ destroyed }` — permanently deletes session |
+| `editor.getPairingCode()` | `{ code, expiresAt }` — generate a pairing code for end-user AI clients |
+| `editor.endPairing()` | `{ revoked }` — invalidate the active pairing code |
+| `editor.getMCPStatus()` | `{ paired: true, sessionId } \| { paired: false, reason? }` |
+| `editor.onAIToolFired(cb)` | unsubscribe fn — fires when AI calls any tool |
+
+### Full documentation
+
+- [MCP Overview](https://docs.dragble.com/mcp-server/overview)
+- [Credentials & Security](https://docs.dragble.com/mcp-server/credentials)
+- [AI Client Setup (OpenCode, Claude Code, Codex, etc.)](https://docs.dragble.com/mcp-server/ai-client-setup)
+
 ## Inputs
 
 | Input               | Type                                     | Default      | Description                           |
@@ -199,82 +496,243 @@ export class EditorComponent {
 | `error`         | `Error`                                | Emitted when an error occurs     |
 | `commentAction` | `CommentAction`                        | Emitted on comment events        |
 
-## Methods
+## SDK Methods Reference
 
-Access methods via `@ViewChild`:
+Access methods through `@ViewChild` on the Angular component. The wrapper exposes SDK methods directly, so call `this.editor.exportHtml()` from your component class. All export and getter methods return Promises.
 
 ```typescript
-@ViewChild('editor') editor!: DragbleEditorComponent;
+@ViewChild("editor") editor!: DragbleEditorComponent;
+
+const html = await this.editor.exportHtml();
 ```
 
 ### Design
 
-| Method                         | Returns   | Description            |
-| ------------------------------ | --------- | ---------------------- |
-| `loadDesign(design, options?)` | `void`    | Load a design          |
-| `loadBlank(options?)`          | `void`    | Load a blank design    |
-| `getDesign()`                  | `Promise` | Get the current design |
+```typescript
+this.editor.loadDesign(design, options?);                   // void
+const result = await this.editor.loadDesignAsync(design, options?);
+// => { success, validRowsCount, invalidRowsCount, errors? }
+this.editor.loadBlank(options?);                            // void
+const { html, json } = await this.editor.getDesign();       // Promise
+```
 
 ### Export
 
-| Method                  | Returns                    | Description          |
-| ----------------------- | -------------------------- | -------------------- |
-| `exportHtml(options?)`  | `Promise<string>`          | Export as HTML       |
-| `exportJson()`          | `Promise<DesignJson>`      | Export as JSON       |
-| `exportPlainText()`     | `Promise<string>`          | Export as plain text |
-| `exportImage(options?)` | `Promise<ExportImageData>` | Export as image      |
-| `exportPdf(options?)`   | `Promise<ExportPdfData>`   | Export as PDF        |
-| `exportZip(options?)`   | `Promise<ExportZipData>`   | Export as ZIP        |
+All export methods are **Promise-based**. There are no callback overloads.
 
-### Configuration
+```typescript
+const html = await this.editor.exportHtml(options?);        // Promise<string>
+const json = await this.editor.exportJson();                // Promise<DesignJson>
+const text = await this.editor.exportPlainText();           // Promise<string>
+const imageData = await this.editor.exportImage(options?);  // Promise<ExportImageData>
+const pdfData = await this.editor.exportPdf(options?);      // Promise<ExportPdfData>
+const zipData = await this.editor.exportZip(options?);      // Promise<ExportZipData>
+const values = await this.editor.getPopupValues();          // Promise<PopupValues | null>
+```
 
-| Method                             | Returns | Description               |
-| ---------------------------------- | ------- | ------------------------- |
-| `setMergeTags(config)`             | `void`  | Update merge tags         |
-| `setSpecialLinks(config)`          | `void`  | Update special links      |
-| `setModules(modules)`              | `void`  | Update custom modules     |
-| `setFonts(config)`                 | `void`  | Update fonts              |
-| `setBodyValues(values)`            | `void`  | Update body values        |
-| `setToolsConfig(config)`           | `void`  | Update tools config       |
-| `setAppearance(config)`            | `void`  | Update appearance         |
-| `setEditorMode(mode)`              | `void`  | Change editor mode        |
-| `setEditorConfig(config)`          | `void`  | Update editor config      |
-| `setLocale(locale, translations?)` | `void`  | Change locale             |
-| `setTextDirection(direction)`      | `void`  | Set text direction        |
-| `setLanguage(language)`            | `void`  | Set template language     |
-| `setDisplayConditions(config)`     | `void`  | Update display conditions |
-| `setOptions(options)`              | `void`  | Update editor options     |
-| `setBrandingColors(config)`        | `void`  | Update branding colors    |
+### Merge Tags
 
-### Editor Actions
+`setMergeTags` accepts a `MergeTagsConfig` object, not a plain array.
 
-| Method                 | Returns                | Description                |
-| ---------------------- | ---------------------- | -------------------------- |
-| `save()`               | `void`                 | Trigger a save event       |
-| `undo()`               | `void`                 | Undo last action           |
-| `redo()`               | `void`                 | Redo last action           |
-| `canUndo()`            | `Promise<boolean>`     | Check if undo is available |
-| `canRedo()`            | `Promise<boolean>`     | Check if redo is available |
-| `showPreview(device?)` | `void`                 | Show design preview        |
-| `hidePreview()`        | `void`                 | Hide preview               |
-| `audit(options?)`      | `Promise<AuditResult>` | Run design audit           |
+```typescript
+this.editor.setMergeTags({
+  customMergeTags: [
+    { name: "First Name", value: "{{first_name}}" },
+    { name: "Company", value: "{{company}}" },
+  ],
+  excludeDefaults: false,
+  sort: true,
+});
+const tags = await this.editor.getMergeTags(); // Promise<(MergeTag | MergeTagGroup)[]>
+```
 
-### Tools & Widgets
+### Special Links
 
-| Method                 | Returns   | Description            |
-| ---------------------- | --------- | ---------------------- |
-| `registerTool(config)` | `Promise` | Register a custom tool |
-| `unregisterTool(id)`   | `Promise` | Unregister a tool      |
-| `getTools()`           | `Promise` | Get registered tools   |
-| `createWidget(config)` | `Promise` | Create a widget        |
-| `removeWidget(name)`   | `Promise` | Remove a widget        |
+`setSpecialLinks` accepts a `SpecialLinksConfig` object.
 
-### Events
+```typescript
+this.editor.setSpecialLinks({
+  customSpecialLinks: [{ name: "Unsubscribe", href: "{{unsubscribe_url}}" }],
+  excludeDefaults: false,
+});
+const links = await this.editor.getSpecialLinks(); // Promise<(SpecialLink | SpecialLinkGroup)[]>
+```
 
-| Method                                 | Returns      | Description                                         |
-| -------------------------------------- | ------------ | --------------------------------------------------- |
-| `addEventListener(event, callback)`    | `() => void` | Subscribe to an event; returns unsubscribe function |
-| `removeEventListener(event, callback)` | `void`       | Remove an event listener                            |
+### Modules
+
+```typescript
+this.editor.setModules(modules); // void
+this.editor.setModulesLoading(loading); // void
+const modules = await this.editor.getModules(); // Promise<Module[]>
+```
+
+### Fonts
+
+```typescript
+this.editor.setFonts(config); // void
+const fonts = await this.editor.getFonts(); // Promise<FontsConfig>
+```
+
+### Body Values
+
+```typescript
+this.editor.setBodyValues({
+  backgroundColor: "#f5f5f5",
+  contentWidth: "600px",
+});
+const values = await this.editor.getBodyValues(); // Promise<SetBodyValuesOptions>
+```
+
+### Editor Configuration
+
+```typescript
+this.editor.setOptions(options); // void — Partial<EditorOptions>
+this.editor.setToolsConfig(toolsConfig); // void
+this.editor.setEditorMode(mode); // void
+this.editor.setEditorConfig(config); // void
+const config = await this.editor.getEditorConfig(); // Promise<EditorBehaviorConfig>
+```
+
+### Locale, Language & Text Direction
+
+```typescript
+this.editor.setLocale(locale, translations?);            // void
+this.editor.setLanguage(language);                       // void
+const lang = await this.editor.getLanguage();            // Promise<Language | null>
+this.editor.setTextDirection(direction);                 // void — 'ltr' | 'rtl'
+const dir = await this.editor.getTextDirection();        // Promise<TextDirection>
+```
+
+### Appearance
+
+```typescript
+this.editor.setAppearance(appearance); // void
+```
+
+### Undo / Redo / Save
+
+```typescript
+this.editor.undo(); // void
+this.editor.redo(); // void
+const canUndo = await this.editor.canUndo(); // Promise<boolean>
+const canRedo = await this.editor.canRedo(); // Promise<boolean>
+this.editor.save(); // void
+```
+
+### Preview
+
+```typescript
+this.editor.showPreview(device?);  // void — 'desktop' | 'tablet' | 'mobile'
+this.editor.hidePreview();         // void
+```
+
+### Custom Tools
+
+```typescript
+await this.editor.registerTool(config); // Promise<void>
+await this.editor.unregisterTool(toolId); // Promise<void>
+const tools = await this.editor.getTools(); // Promise<Array<{ id, label, baseToolType }>>
+```
+
+### Custom Widgets
+
+```typescript
+await this.editor.createWidget(config); // Promise<void>
+await this.editor.removeWidget(widgetName); // Promise<void>
+```
+
+### Collaboration & Comments
+
+```typescript
+this.editor.showComment(commentId); // void
+this.editor.openCommentPanel(rowId); // void
+```
+
+### Tabs & Branding
+
+```typescript
+this.editor.updateTabs(tabs); // void
+this.editor.setBrandingColors(config); // void
+this.editor.registerColumns(cells); // void
+```
+
+### Display Conditions
+
+```typescript
+this.editor.setDisplayConditions(config); // void
+```
+
+### Audit
+
+```typescript
+const result = await this.editor.audit(options?);  // Promise<AuditResult>
+```
+
+### Asset Management
+
+```typescript
+const { success, url, error } = await this.editor.uploadImage(file, options?);
+const { assets, total } = await this.editor.listAssets(options?);
+const { success, error } = await this.editor.deleteAsset(assetId);
+const folders = await this.editor.listAssetFolders(parentId?);
+const folder = await this.editor.createAssetFolder(name, parentId?);
+const info = await this.editor.getStorageInfo();
+```
+
+### Status & Lifecycle
+
+```typescript
+this.editor.isReady(); // boolean
+this.editor.destroy(); // void
+```
+
+## Events
+
+Angular outputs (`(ready)`, `(load)`, `(change)`, `(error)`, `(commentAction)`) cover the common component integration points. For lower-level SDK events, subscribe with `addEventListener` after the editor is ready:
+
+```typescript
+const unsubscribe = this.editor.addEventListener("design:updated", (data) => {
+  console.log("Design changed:", data);
+});
+
+// Or remove manually
+this.editor.removeEventListener("design:updated", callback);
+```
+
+### Available Events
+
+| Event                      | Description                 |
+| -------------------------- | --------------------------- |
+| `editor:ready`             | Editor initialized          |
+| `design:loaded`            | Design loaded               |
+| `design:updated`           | Design changed              |
+| `design:saved`             | Design saved                |
+| `row:selected`             | Row selected                |
+| `row:unselected`           | Row unselected              |
+| `column:selected`          | Column selected             |
+| `column:unselected`        | Column unselected           |
+| `content:selected`         | Content block selected      |
+| `content:unselected`       | Content block unselected    |
+| `content:modified`         | Content block modified      |
+| `content:added`            | Content block added         |
+| `content:deleted`          | Content block deleted       |
+| `preview:shown`            | Preview opened              |
+| `preview:hidden`           | Preview closed              |
+| `image:uploaded`           | Image uploaded successfully |
+| `image:error`              | Image upload error          |
+| `export:html`              | HTML exported               |
+| `export:plainText`         | Plain text exported         |
+| `export:image`             | Image exported              |
+| `save`                     | Save triggered              |
+| `save:success`             | Save succeeded              |
+| `save:error`               | Save failed                 |
+| `template:requested`       | Template requested          |
+| `element:selected`         | Element selected            |
+| `element:deselected`       | Element deselected          |
+| `export`                   | Export triggered            |
+| `displayCondition:applied` | Display condition applied   |
+| `displayCondition:removed` | Display condition removed   |
+| `displayCondition:updated` | Display condition updated   |
 
 ## TypeScript
 
